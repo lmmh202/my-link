@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import { LogOut, Link2, User as UserIcon, LayoutDashboard } from "lucide-react";
+import { LogOut, Link2, User as UserIcon, LayoutDashboard, BarChart3 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { href: "/admin/profile", label: "프로필 관리", icon: UserIcon },
     { href: "/admin/links", label: "링크 관리", icon: Link2 },
+    { href: "/admin/stats", label: "통계 분석", icon: BarChart3 },
   ];
 
   return (
