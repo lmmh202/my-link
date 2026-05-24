@@ -13,6 +13,7 @@ import {
   query,
   where,
   getDocs,
+  orderBy,
 } from "firebase/firestore";
 import {
   User as UserIcon,
@@ -45,10 +46,18 @@ interface UserProfile {
   username: string;
 }
 
+interface LinkItem {
+  id: string;
+  linkTitle: string;
+  targetUrl: string;
+  clickCount: number;
+}
+
 export default function AdminProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [links, setLinks] = useState<LinkItem[]>([]);
 
   // Editing state variables
   const [editingField, setEditingField] = useState<"displayName" | "bioText" | "username" | null>(null);
@@ -101,6 +110,33 @@ export default function AdminProfilePage() {
       (err) => {
         console.error("Error listening to user profile:", err);
         setProfileLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Real-time synchronization of links with Firestore for preview
+  useEffect(() => {
+    if (!user) return;
+
+    const colRef = collection(db, "users", user.uid, "links");
+    const q = query(colRef, orderBy("createdAt", "desc"));
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const items: LinkItem[] = [];
+        snapshot.forEach((doc) => {
+          items.push({
+            id: doc.id,
+            ...doc.data(),
+          } as LinkItem);
+        });
+        setLinks(items);
+      },
+      (err) => {
+        console.error("Firestore preview links fetch failed:", err);
       }
     );
 
@@ -529,25 +565,31 @@ export default function AdminProfilePage() {
                 {editingField === "bioText" ? tempValue.trim() || profile.bioText : profile.bioText}
               </p>
 
-              {/* Stylized Mock Link Buttons Stack */}
+              {/* Stylized Real Link Buttons Stack */}
               <div className="w-full space-y-2.5 pt-4">
-                {[
-                  { title: "공식 소셜 채널 방문하기 📺" },
-                  { title: "포트폴리오 구경하기 🌐" },
-                ].map((mockLink, idx) => (
-                  <div
-                    key={idx}
-                    className="w-full min-h-[46px] px-3.5 py-2.5 bg-zinc-900/40 border border-zinc-800/80 rounded-xl flex items-center justify-between text-zinc-400"
-                  >
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      <div className="w-7 h-7 rounded-lg bg-zinc-950 flex items-center justify-center border border-zinc-850">
-                        <Link2 className="w-3.5 h-3.5 text-emerald-400/80" />
-                      </div>
-                      <span className="text-[11px] font-bold text-zinc-300 truncate">{mockLink.title}</span>
-                    </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-zinc-650" />
+                {links.length === 0 ? (
+                  <div className="border border-zinc-800 border-dashed rounded-xl p-4 text-center text-[10px] text-zinc-500">
+                    등록된 링크가 없습니다.
                   </div>
-                ))}
+                ) : (
+                  links.map((link) => (
+                    <a
+                      key={link.id}
+                      href={link.targetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full min-h-[46px] px-3.5 py-2.5 bg-zinc-900/40 border border-zinc-800/80 hover:border-zinc-700/60 rounded-xl flex items-center justify-between text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 overflow-hidden text-left">
+                        <div className="w-7 h-7 rounded-lg bg-zinc-950 flex items-center justify-center border border-zinc-850 shrink-0">
+                          <Link2 className="w-3.5 h-3.5 text-emerald-400/80" />
+                        </div>
+                        <span className="text-[11px] font-bold text-zinc-300 truncate">{link.linkTitle}</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-zinc-650 shrink-0" />
+                    </a>
+                  ))
+                )}
               </div>
             </div>
 
