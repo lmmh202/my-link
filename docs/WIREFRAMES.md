@@ -7,6 +7,7 @@ This document details the layout structure, screen grids, and responsive visual 
 | Version | Date | Author | Description |
 | :--- | :--- | :--- | :--- |
 | v1.0.0 | 2026-05-24 | AI Assistant | Initial draft capturing landing page, login, dashboard layout, and public page wireframes. |
+| v1.1.0 | 2026-05-24 | AI Assistant | Added Mermaid-based screen navigation and application flowchart. |
 
 ---
 
@@ -179,3 +180,61 @@ A centered, vertical mobile viewport view showing user identity cards and stacke
 - **Viewport Constraints**: Uses centering flex layout with width constraints restricted to mobile size (`max-w-md w-full mx-auto`) even on wide screen resolutions.
 - **Identity Header**: Vertical layout. The top features a round avatar surrounded by a glowing neon border. Below, the system displays the display name, custom username badge, and centered biography block.
 - **Links Container**: Stacks dynamic responsive links (`w-full`). Each card handles tap events instantly by incrementing the click counter before navigating away.
+
+---
+
+## 5. Screen Navigation & Application Flow
+
+The following Mermaid flowchart represents the visual navigation hierarchy, authentication verification steps, automatic user provisioning, and visitor-triggered click counting paths.
+
+```mermaid
+flowchart TD
+    %% Personas
+    Visitor[Visitor / External User]
+    Owner[Owner / Creator]
+
+    %% Paths
+    Visitor --> PathPublic[Dynamic Route: /[username]]
+    Owner --> PathHome[Landing Page: /]
+
+    %% Visitor Flow
+    subgraph Public Profile Flow
+        PathPublic --> FetchProfile{Query Firestore users}
+        FetchProfile -- Found --> RenderPublic[Display Profile & Links]
+        FetchProfile -- Not Found --> Render404[Display 404 Page]
+        Render404 --> ReturnHome[Click 'Make my own Link'] --> PathHome
+        
+        RenderPublic --> ClickLink[Click Link Card]
+        ClickLink --> IncrementCount[Increment clickCount +1 in Firestore]
+        IncrementCount --> ExternalRedirect[Redirect to Target URL]
+    end
+
+    %% Owner Flow
+    subgraph Registration & Authentication Flow
+        PathHome --> ClickStart[Click 'Get Started' or 'Dashboard']
+        ClickStart --> PathLogin[Login Page: /login]
+        PathLogin --> GoogleLogin[Google Social Sign-In]
+        GoogleLogin --> AuthCheck{Auth Successful?}
+        AuthCheck -- Yes --> ProfileCheck{Profile exists in /users/{uid}?}
+        AuthCheck -- No --> PathLogin
+        
+        ProfileCheck -- No --> ProvisionProfile[Auto-provision profile from Google metadata] --> PathAdmin[Admin Dashboard: /admin/links]
+        ProfileCheck -- Yes --> PathAdmin
+    end
+
+    subgraph Admin Dashboard Operations
+        PathAdmin --> AddLink[Add Link Form]
+        AddLink --> ValidateURL{URL Valid?}
+        ValidateURL -- Yes --> CreateLink[Save link under users/{uid}/links]
+        ValidateURL -- No --> ShowFormError[Display Form Error]
+
+        PathAdmin --> ReadLinks[Listen to links in real-time]
+        
+        PathAdmin --> EditLink[Click Edit on Link Card]
+        EditLink --> InlineEdit[Inline Title/URL inputs]
+        InlineEdit --> SaveEdit[Update link in Firestore]
+
+        PathAdmin --> DeleteLink[Click Delete on Link Card]
+        DeleteLink --> ConfirmDelete[Remove link from Firestore]
+    end
+```
