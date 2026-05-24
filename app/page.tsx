@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Link2, Sparkles, ShieldCheck, BarChart3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function Home() {
   return (
@@ -18,21 +21,25 @@ export default function Home() {
             My Link
           </span>
         </div>
-        <Link
-          href="/login"
-          className="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-sm font-semibold transition-all hover:bg-zinc-800 hover:border-zinc-700 hover:text-white"
+        <Button
+          asChild
+          variant="outline"
+          className="px-4 py-2 h-auto rounded-xl bg-zinc-900 border border-zinc-800 text-sm font-semibold transition-all hover:bg-zinc-800 hover:border-zinc-700 hover:text-white text-zinc-100"
         >
-          대시보드 가기
-        </Link>
+          <Link href="/login">대시보드 가기</Link>
+        </Button>
       </header>
 
       {/* Hero Section */}
       <main className="max-w-6xl mx-auto w-full px-6 py-12 md:py-24 flex flex-col lg:flex-row items-center gap-12 z-10 flex-grow justify-center">
         <div className="flex-1 space-y-6 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400">
+          <Badge
+            variant="outline"
+            className="inline-flex items-center gap-2 h-auto px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10"
+          >
             <Sparkles className="w-3.5 h-3.5" />
             <span>나만의 링크 트리를 1분 만에 제작</span>
-          </div>
+          </Badge>
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
             나를 표현하는 <br className="hidden sm:inline" />
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400 bg-clip-text text-transparent">
@@ -44,13 +51,15 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-            <Link
-              href="/login"
-              className="group w-full sm:w-auto h-14 px-8 rounded-2xl bg-zinc-100 text-zinc-950 font-bold flex items-center justify-center gap-2 hover:bg-white hover:shadow-xl hover:shadow-white/5 active:scale-[0.98] transition-all"
+            <Button
+              asChild
+              className="group w-full sm:w-auto h-14 px-8 rounded-2xl bg-zinc-100 text-zinc-950 hover:text-zinc-950 font-bold flex items-center justify-center gap-2 hover:bg-white hover:shadow-xl hover:shadow-white/5 active:scale-[0.98] transition-all border-none"
             >
-              <span>무료로 시작하기</span>
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </Link>
+              <Link href="/login">
+                <span>무료로 시작하기</span>
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
           </div>
 
           <div className="flex items-center justify-center lg:justify-start gap-6 pt-6 text-sm text-zinc-500">
@@ -75,9 +84,11 @@ export default function Home() {
             
             {/* User Avatar */}
             <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 mb-3">
-              <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center text-zinc-300 font-bold">
-                Me
-              </div>
+              <Avatar className="w-full h-full rounded-full bg-zinc-950 border-none">
+                <AvatarFallback className="w-full h-full bg-zinc-950 text-zinc-300 font-bold text-sm">
+                  Me
+                </AvatarFallback>
+              </Avatar>
             </div>
             <h3 className="font-bold text-sm text-zinc-100">@mylink_user</h3>
             <p className="text-[10px] text-zinc-500 mt-1 mb-6 text-center px-4">

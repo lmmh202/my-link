@@ -25,12 +25,19 @@ import {
   AlertCircle,
   Sparkles,
   Link2,
-  Loader2,
   ChevronRight,
   User as UserIcon,
   Copy,
 } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Spinner } from "@/components/ui/spinner";
 
 interface LinkItem {
   id: string;
@@ -286,7 +293,7 @@ export default function AdminLinksPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-100">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+          <Spinner className="w-8 h-8 text-emerald-400" />
           <p className="text-sm text-zinc-500">프로필 정보를 불러오고 있습니다...</p>
         </div>
       </div>
@@ -297,17 +304,14 @@ export default function AdminLinksPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-100 p-6 text-center">
-        <div className="space-y-4">
+        <Card className="max-w-md w-full bg-zinc-900/60 border-zinc-800/80 p-8 space-y-4 text-zinc-100 ring-0">
           <AlertCircle className="w-12 h-12 text-rose-500 mx-auto" />
           <h2 className="text-xl font-bold">인증이 필요합니다</h2>
           <p className="text-sm text-zinc-400">관리자 대시보드에 접근하기 위해 로그인해 주세요.</p>
-          <Link
-            href="/login"
-            className="inline-block px-5 py-2.5 rounded-xl bg-zinc-100 text-zinc-950 font-bold hover:bg-white transition-colors"
-          >
-            로그인하러 가기
-          </Link>
-        </div>
+          <Button asChild className="w-full bg-zinc-100 text-zinc-950 hover:bg-white transition-colors font-bold rounded-xl h-11 border-none">
+            <Link href="/login">로그인하러 가기</Link>
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -327,10 +331,10 @@ export default function AdminLinksPage() {
             공유하고자 하는 소셜 링크, 웹사이트를 간편하게 추가하고 관리하세요.
           </p>
         </div>
-        <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400">
+        <Badge variant="outline" className="hidden sm:inline-flex items-center gap-2 h-auto px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10">
           <Sparkles className="w-3.5 h-3.5" />
           <span>실시간 저장 활성화</span>
-        </div>
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -338,7 +342,7 @@ export default function AdminLinksPage() {
         <div className="lg:col-span-5 space-y-6">
           {/* Profile Card */}
           {profile && (
-            <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <Card className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden ring-0 text-zinc-100">
               <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-emerald-500/50 to-teal-400/50" />
               
               <h2 className="text-xs font-bold text-zinc-400 tracking-wider uppercase mb-4 flex items-center gap-1.5">
@@ -347,18 +351,12 @@ export default function AdminLinksPage() {
               </h2>
 
               <div className="flex items-center gap-4 mb-5">
-                {profile.profileImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={profile.profileImageUrl}
-                    alt={profile.displayName}
-                    className="w-14 h-14 rounded-full border-2 border-emerald-500/30 p-0.5 object-cover"
-                  />
-                ) : (
-                  <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700">
+                <Avatar className="w-14 h-14 border-2 border-emerald-500/30 p-0.5 shrink-0">
+                  <AvatarImage src={profile.profileImageUrl || undefined} className="w-full h-full rounded-full object-cover" />
+                  <AvatarFallback className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-full">
                     <UserIcon className="w-6 h-6 text-zinc-400" />
-                  </div>
-                )}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="text-left overflow-hidden">
                   <h3 className="font-extrabold text-zinc-100 text-base leading-tight truncate">
                     {profile.displayName}
@@ -376,43 +374,47 @@ export default function AdminLinksPage() {
               <div className="bg-zinc-950/65 border border-zinc-800/85 rounded-xl p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between text-xs text-zinc-500">
                   <span>공개 링크 주소</span>
-                  <span className="text-[10px] text-emerald-400/80 bg-emerald-400/5 px-2 py-0.5 rounded border border-emerald-500/10 font-semibold">
+                  <Badge variant="outline" className="text-[10px] text-emerald-400/80 bg-emerald-400/5 px-2 py-0.5 h-auto rounded border border-emerald-500/10 font-semibold hover:bg-emerald-400/5">
                     Live
-                  </span>
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between gap-2 overflow-hidden bg-zinc-900/60 p-2 rounded-lg border border-zinc-800">
                   <span className="text-xs text-zinc-300 font-mono truncate select-all">
                     mylink.com/{profile.username}
                   </span>
-                  <button
+                  <Button
                     onClick={handleCopyLink}
-                    className={`p-1.5 rounded-md border text-xs font-semibold flex items-center gap-1 transition-all ${
+                    variant="outline"
+                    size="icon"
+                    className={`p-1.5 w-7 h-7 rounded-md border text-xs font-semibold flex items-center justify-center transition-all ${
                       copied
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : "bg-zinc-800 text-zinc-400 border-zinc-700 hover:text-zinc-200 hover:bg-zinc-700"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/15"
+                        : "bg-zinc-800 text-zinc-400 border-zinc-700 hover:text-zinc-200 hover:bg-zinc-700 hover:border-zinc-600"
                     }`}
                     title="링크 복사"
                   >
                     {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="pt-1.5 flex gap-2">
-                  <Link
-                    href={publicPagePath}
-                    target="_blank"
+                  <Button
+                    asChild
+                    variant="outline"
                     className="flex-1 h-9 rounded-lg bg-zinc-800 text-zinc-300 text-xs font-bold hover:bg-zinc-700 hover:text-white transition-all flex items-center justify-center gap-1.5 border border-zinc-700/50"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>공개 페이지 방문</span>
-                  </Link>
+                    <Link href={publicPagePath} target="_blank">
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>공개 페이지 방문</span>
+                    </Link>
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Add Link Form */}
-          <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+          <Card className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden ring-0 text-zinc-100">
             {/* Background glowing line */}
             <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-emerald-500 to-teal-400" />
             
@@ -423,32 +425,32 @@ export default function AdminLinksPage() {
 
             <form onSubmit={handleAddLink} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-400" htmlFor="link-title">
+                <Label className="text-xs font-semibold text-zinc-400" htmlFor="link-title">
                   링크 제목
-                </label>
-                <input
+                </Label>
+                <Input
                   id="link-title"
                   type="text"
                   placeholder="예: 공식 웹사이트 🌐"
                   value={titleInput}
                   onChange={(e) => setTitleInput(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-zinc-950/80 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
+                  className="w-full h-11 px-4 rounded-xl bg-zinc-950/80 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500/50 focus-visible:border-emerald-500/50 transition-all animate-none"
                   disabled={submitting}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-400" htmlFor="target-url">
+                <Label className="text-xs font-semibold text-zinc-400" htmlFor="target-url">
                   연결할 주소 (URL)
-                </label>
+                </Label>
                 <div className="relative">
-                  <input
+                  <Input
                     id="target-url"
                     type="text"
                     placeholder="예: mylink.com 또는 https://..."
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
-                    className="w-full h-11 pl-4 pr-10 rounded-xl bg-zinc-950/80 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
+                    className="w-full h-11 pl-4 pr-10 rounded-xl bg-zinc-950/80 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500/50 focus-visible:border-emerald-500/50 transition-all animate-none"
                     disabled={submitting}
                   />
                   <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500">
@@ -458,28 +460,28 @@ export default function AdminLinksPage() {
               </div>
 
               {error && (
-                <div className="flex items-start gap-2 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-rose-400 text-xs leading-relaxed animate-in fade-in duration-200">
+                <Alert variant="destructive" className="flex items-start gap-2 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-rose-400 text-xs leading-relaxed animate-in fade-in duration-200">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>{error}</span>
-                </div>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
 
-              <button
+              <Button
                 type="submit"
                 disabled={submitting}
-                className="w-full h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-zinc-950 font-bold hover:shadow-lg hover:shadow-emerald-500/10 hover:from-emerald-400 hover:to-teal-400 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center gap-2 mt-2"
+                className="w-full h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-zinc-950 hover:text-zinc-950 font-bold hover:shadow-lg hover:shadow-emerald-500/10 hover:from-emerald-400 hover:to-teal-400 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center gap-2 mt-2 border-none"
               >
                 {submitting ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Spinner className="w-5 h-5 text-zinc-950" />
                 ) : (
                   <>
                     <Plus className="w-5 h-5" />
                     <span>추가하기</span>
                   </>
                 )}
-              </button>
+              </Button>
             </form>
-          </div>
+          </Card>
         </div>
 
         {/* Right Column: Links List */}
@@ -489,21 +491,21 @@ export default function AdminLinksPage() {
               <span className="w-1.5 h-4 rounded bg-teal-400" />
               나의 링크 목록
               {links.length > 0 && (
-                <span className="text-xs bg-zinc-800 text-zinc-400 px-2.5 py-0.5 rounded-full font-medium ml-1">
+                <Badge variant="secondary" className="text-xs bg-zinc-800 text-zinc-400 px-2.5 py-0.5 h-auto rounded-full font-medium ml-1 hover:bg-zinc-800">
                   {links.length}개
-                </span>
+                </Badge>
               )}
             </h2>
           </div>
 
           {loading ? (
-            <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-16 flex flex-col items-center justify-center space-y-4">
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+            <Card className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-16 flex flex-col items-center justify-center space-y-4 text-zinc-100 ring-0">
+              <Spinner className="w-8 h-8 text-emerald-400" />
               <p className="text-sm text-zinc-500">링크 목록을 실시간으로 가져오는 중입니다...</p>
-            </div>
+            </Card>
           ) : links.length === 0 ? (
             /* Empty State */
-            <div className="bg-zinc-900/30 border border-zinc-800/60 border-dashed rounded-2xl p-16 flex flex-col items-center justify-center text-center space-y-4">
+            <Card className="bg-zinc-900/30 border border-zinc-800/60 border-dashed rounded-2xl p-16 flex flex-col items-center justify-center text-center space-y-4 text-zinc-100 ring-0">
               <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center border border-zinc-800">
                 <Link2 className="w-6 h-6 text-zinc-500" />
               </div>
@@ -513,7 +515,7 @@ export default function AdminLinksPage() {
                   왼쪽 폼을 활용하여 첫 번째 링크를 추가해 주세요. 추가된 링크는 즉시 저장되어 공유할 수 있게 됩니다.
                 </p>
               </div>
-            </div>
+            </Card>
           ) : (
             /* Link Cards List */
             <div className="space-y-3.5">
@@ -522,9 +524,9 @@ export default function AdminLinksPage() {
                 const isDeleting = deletingId === link.id;
 
                 return (
-                  <div
+                  <Card
                     key={link.id}
-                    className={`group relative bg-zinc-900/60 backdrop-blur-xl border rounded-2xl p-5 shadow-sm transition-all duration-300 ${
+                    className={`group relative bg-zinc-900/60 backdrop-blur-xl border rounded-2xl p-5 shadow-sm transition-all duration-300 text-zinc-100 ring-0 ${
                       isEditing
                         ? "border-emerald-500/50 ring-1 ring-emerald-500/20"
                         : "border-zinc-800/80 hover:border-zinc-700/60 hover:shadow-md hover:-translate-y-0.5"
@@ -538,33 +540,35 @@ export default function AdminLinksPage() {
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                             링크 편집 중
                           </span>
-                          <button
+                          <Button
                             onClick={handleCancelEdit}
-                            className="p-1 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                            variant="ghost"
+                            size="icon"
+                            className="p-1 w-6 h-6 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
                           >
                             <X className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-semibold text-zinc-400">제목</label>
-                            <input
+                          <div className="space-y-1.5">
+                            <Label className="text-[10px] font-semibold text-zinc-400">제목</Label>
+                            <Input
                               type="text"
                               value={editTitleInput}
                               onChange={(e) => setEditTitleInput(e.target.value)}
-                              className="w-full h-10 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                              className="w-full h-10 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500/50 animate-none"
                               placeholder="링크 제목"
                               disabled={savingId === link.id}
                             />
                           </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-semibold text-zinc-400">URL</label>
-                            <input
+                          <div className="space-y-1.5">
+                            <Label className="text-[10px] font-semibold text-zinc-400">URL</Label>
+                            <Input
                               type="text"
                               value={editUrlInput}
                               onChange={(e) => setEditUrlInput(e.target.value)}
-                              className="w-full h-10 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                              className="w-full h-10 px-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500/50 animate-none"
                               placeholder="https://..."
                               disabled={savingId === link.id}
                             />
@@ -572,36 +576,37 @@ export default function AdminLinksPage() {
                         </div>
 
                         {editError && (
-                          <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2.5 text-rose-400 text-xs leading-none">
+                          <Alert variant="destructive" className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2.5 text-rose-400 text-xs leading-none">
                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                            <span>{editError}</span>
-                          </div>
+                            <AlertDescription>{editError}</AlertDescription>
+                          </Alert>
                         )}
 
                         <div className="flex justify-end gap-2 pt-1">
-                          <button
+                          <Button
                             type="button"
                             onClick={handleCancelEdit}
-                            className="h-8 px-3 rounded-lg bg-zinc-800 text-zinc-300 text-xs font-semibold hover:bg-zinc-700 hover:text-white transition-colors"
+                            variant="outline"
+                            className="h-8 px-3 rounded-lg bg-zinc-800 text-zinc-300 text-xs font-semibold hover:bg-zinc-700 hover:text-white transition-colors border-zinc-700"
                             disabled={savingId === link.id}
                           >
                             취소
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             type="button"
                             onClick={() => handleSaveEdit(link.id)}
-                            className="h-8 px-3 rounded-lg bg-emerald-500 text-zinc-950 text-xs font-bold hover:bg-emerald-400 transition-colors flex items-center gap-1.5"
+                            className="h-8 px-3 rounded-lg bg-emerald-500 text-zinc-950 hover:text-zinc-950 text-xs font-bold hover:bg-emerald-400 transition-colors flex items-center gap-1.5 border-none"
                             disabled={savingId === link.id}
                           >
                             {savingId === link.id ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <Spinner className="w-3 h-3 text-zinc-950" />
                             ) : (
                               <>
                                 <Check className="w-3.5 h-3.5" />
                                 <span>저장</span>
                               </>
                             )}
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ) : (
@@ -623,52 +628,62 @@ export default function AdminLinksPage() {
                             </p>
                             
                             {/* Click stats badge */}
-                            <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-zinc-850 text-[10px] text-zinc-400 border border-zinc-800 font-medium">
+                            <Badge variant="outline" className="inline-flex items-center gap-1 px-1.5 py-0.5 h-auto rounded bg-zinc-850 text-[10px] text-zinc-400 border border-zinc-800 font-medium hover:bg-zinc-850">
                               <span>클릭 수:</span>
                               <span className="text-emerald-400 font-bold">{link.clickCount || 0}</span>
-                            </div>
+                            </Badge>
                           </div>
                         </div>
 
                         {/* Right Buttons Actions */}
                         <div className="flex items-center gap-1 shrink-0 opacity-85 group-hover:opacity-100 transition-opacity">
                           {/* Visit Link */}
-                          <a
-                            href={link.targetUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-colors"
+                          <Button
+                            asChild
+                            variant="ghost"
+                            size="icon"
+                            className="p-2 w-9 h-9 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-colors"
                             title="링크 열기"
                           >
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
+                            <a
+                              href={link.targetUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </Button>
                           
                           {/* Edit Link */}
-                          <button
+                          <Button
                             onClick={() => handleStartEdit(link)}
-                            className="p-2 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                            variant="ghost"
+                            size="icon"
+                            className="p-2 w-9 h-9 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
                             title="링크 수정"
                           >
                             <Edit3 className="w-4 h-4" />
-                          </button>
+                          </Button>
 
                           {/* Delete Link */}
-                          <button
+                          <Button
                             onClick={() => handleDeleteLink(link.id)}
                             disabled={isDeleting}
-                            className="p-2 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                            variant="ghost"
+                            size="icon"
+                            className="p-2 w-9 h-9 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
                             title="링크 삭제"
                           >
                             {isDeleting ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Spinner className="w-4 h-4 text-rose-400" />
                             ) : (
                               <Trash2 className="w-4 h-4" />
                             )}
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     )}
-                  </div>
+                  </Card>
                 );
               })}
             </div>

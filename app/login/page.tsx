@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { isConfigured } from "@/lib/firebase";
-import { Lock, AlertTriangle, ArrowRight, Loader2 } from "lucide-react";
+import { Lock, AlertTriangle, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function LoginPage() {
   const { user, loading, loginWithGoogle } = useAuth();
@@ -40,7 +44,7 @@ export default function LoginPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-100">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+        <Spinner className="w-8 h-8 text-emerald-400" />
       </div>
     );
   }
@@ -52,7 +56,7 @@ export default function LoginPage() {
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-blue-500/10 blur-[120px] pointer-events-none" />
 
       {/* Login Card */}
-      <div className="relative w-full max-w-md bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 shadow-2xl transition-all duration-300 hover:border-zinc-700/60">
+      <Card className="relative w-full max-w-md bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 shadow-2xl transition-all duration-300 hover:border-zinc-700/60 ring-0 text-zinc-100">
         <div className="flex flex-col items-center text-center mb-8">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-4">
             <Lock className="w-6 h-6 text-zinc-950" />
@@ -67,33 +71,33 @@ export default function LoginPage() {
 
         {/* Configuration Warning */}
         {!isConfigured && (
-          <div className="mb-6 flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-amber-200 text-sm">
+          <Alert className="mb-6 flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-amber-200 text-sm">
             <AlertTriangle className="w-5 h-5 shrink-0 text-amber-400" />
             <div>
-              <p className="font-semibold mb-1">Firebase 설정 필요</p>
-              <p className="text-amber-300/80 leading-relaxed text-xs">
+              <AlertTitle className="font-semibold text-sm mb-1">Firebase 설정 필요</AlertTitle>
+              <AlertDescription className="text-amber-300/80 leading-relaxed text-xs">
                 로컬 개발을 위해 <code>.env.local</code> 파일을 생성하고 실제 Firebase API 키를 설정해주세요.
-              </p>
+              </AlertDescription>
             </div>
-          </div>
+          </Alert>
         )}
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 flex items-start gap-3 bg-rose-500/10 border border-rose-500/20 rounded-xl p-4 text-rose-200 text-sm">
+          <Alert variant="destructive" className="mb-6 flex items-start gap-3 bg-rose-500/10 border border-rose-500/20 rounded-xl p-4 text-rose-200 text-sm">
             <AlertTriangle className="w-5 h-5 shrink-0 text-rose-400" />
-            <p className="leading-relaxed text-xs">{error}</p>
-          </div>
+            <AlertDescription className="text-rose-200 leading-relaxed text-xs">{error}</AlertDescription>
+          </Alert>
         )}
 
         {/* Social Login Button */}
-        <button
+        <Button
           onClick={handleLogin}
           disabled={isLoggingIn}
-          className="group relative w-full h-12 flex items-center justify-center gap-3 bg-zinc-100 text-zinc-950 font-semibold rounded-xl transition-all duration-200 hover:bg-white hover:shadow-lg hover:shadow-white/5 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+          className="group relative w-full h-12 flex items-center justify-center gap-3 bg-zinc-100 text-zinc-950 hover:text-zinc-950 font-semibold rounded-xl transition-all duration-200 hover:bg-white hover:shadow-lg hover:shadow-white/5 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none border-none"
         >
           {isLoggingIn ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Spinner className="w-5 h-5 text-zinc-950" />
           ) : (
             <>
               {/* Google Custom G Logo SVG */}
@@ -119,8 +123,8 @@ export default function LoginPage() {
               <ArrowRight className="w-4 h-4 ml-1 opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
             </>
           )}
-        </button>
-      </div>
+        </Button>
+      </Card>
     </div>
   );
 }

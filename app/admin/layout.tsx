@@ -4,7 +4,10 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import { Loader2, LogOut, Link2, User as UserIcon, LayoutDashboard } from "lucide-react";
+import { LogOut, Link2, User as UserIcon, LayoutDashboard } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
@@ -29,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-100">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+        <Spinner className="w-8 h-8 text-emerald-400" />
       </div>
     );
   }
@@ -78,18 +81,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* User profile & Logout */}
         <div className="p-4 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 overflow-hidden">
-            {user.photoURL ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={user.photoURL}
-                alt="Profile"
-                className="w-9 h-9 rounded-full border border-zinc-700"
-              />
-            ) : (
-              <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center">
-                <UserIcon className="w-4 h-4 text-zinc-400" />
-              </div>
-            )}
+            <Avatar className="w-9 h-9 border border-zinc-700 shrink-0">
+              <AvatarImage src={user.photoURL || undefined} alt="Profile" />
+              <AvatarFallback className="w-full h-full bg-zinc-800 text-zinc-400 flex items-center justify-center">
+                <UserIcon className="w-4 h-4" />
+              </AvatarFallback>
+            </Avatar>
             <div className="text-left overflow-hidden">
               <p className="text-sm font-semibold truncate leading-tight">
                 {user.displayName || "사용자"}
@@ -99,13 +96,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </p>
             </div>
           </div>
-          <button
+          <Button
             onClick={handleLogout}
-            className="p-2 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+            variant="ghost"
+            size="icon"
+            className="p-2 w-9 h-9 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
             title="로그아웃"
           >
             <LogOut className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
       </aside>
 
