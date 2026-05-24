@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import {
   collection,
@@ -12,6 +13,7 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
 import {
   Plus,
@@ -25,22 +27,40 @@ import {
   Link2,
   Loader2,
   ChevronRight,
+  User as UserIcon,
+  Copy,
 } from "lucide-react";
+import Link from "next/link";
 
 interface LinkItem {
   id: string;
   linkTitle: string;
   targetUrl: string;
+  clickCount: number;
   createdAt?: any;
 }
 
+interface UserProfile {
+  userId: string;
+  displayName: string;
+  bioText: string;
+  profileImageUrl: string;
+  username: string;
+}
+
 export default function AdminLinksPage() {
+  const { user, loading: authLoading } = useAuth();
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [titleInput, setTitleInput] = useState("");
   const [urlInput, setUrlInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // Profile states
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   // Edit states
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -50,9 +70,52 @@ export default function AdminLinksPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Real-time synchronization with Firestore
+  // Initialize and listen to User Profile
   useEffect(() => {
-    const colRef = collection(db, "users", "anonymous", "links");
+    if (!user) return;
+
+    const userDocRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      async (docSnap) => {
+        if (!docSnap.exists()) {
+          // Document does not exist, initialize it automatically with Auth info
+          const defaultUsername = user.email ? user.email.split("@")[0] : user.uid;
+          const newProfile: UserProfile = {
+            userId: user.uid,
+            displayName: user.displayName || "사용자",
+            bioText: "저의 채널을 방문해주셔서 감사합니다! 🚀",
+            profileImageUrl: user.photoURL || "",
+            username: defaultUsername,
+          };
+          try {
+            await setDoc(userDocRef, {
+              ...newProfile,
+              createdAt: serverTimestamp(),
+            });
+            setProfile(newProfile);
+          } catch (err) {
+            console.error("Error creating default profile in Firestore:", err);
+          }
+        } else {
+          setProfile(docSnap.data() as UserProfile);
+        }
+        setProfileLoading(false);
+      },
+      (err) => {
+        console.error("Error listening to user profile:", err);
+        setProfileLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Real-time synchronization of links with Firestore
+  useEffect(() => {
+    if (!user) return;
+
+    const colRef = collection(db, "users", user.uid, "links");
     const q = query(colRef, orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(
@@ -75,7 +138,7 @@ export default function AdminLinksPage() {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   // Helper to validate and format URL
   const formatAndValidateUrl = (url: string): string => {
@@ -102,6 +165,11 @@ export default function AdminLinksPage() {
     e.preventDefault();
     setError(null);
 
+    if (!user) {
+      setError("로그인이 필요합니다.");
+      return;
+    }
+
     const title = titleInput.trim();
     if (!title) {
       setError("링크 제목을 입력해 주세요.");
@@ -118,7 +186,7 @@ export default function AdminLinksPage() {
 
     setSubmitting(true);
     try {
-      const colRef = collection(db, "users", "anonymous", "links");
+      const colRef = collection(db, "users", user.uid, "links");
       await addDoc(colRef, {
         linkTitle: title,
         targetUrl: url,
@@ -139,9 +207,10 @@ export default function AdminLinksPage() {
 
   // Delete a link
   const handleDeleteLink = async (id: string) => {
+    if (!user) return;
     setDeletingId(id);
     try {
-      const docRef = doc(db, "users", "anonymous", "links", id);
+      const docRef = doc(db, "users", user.uid, "links", id);
       await deleteDoc(docRef);
     } catch (err) {
       console.error("Error deleting link:", err);
@@ -169,6 +238,7 @@ export default function AdminLinksPage() {
 
   // Save changes
   const handleSaveEdit = async (id: string) => {
+    if (!user) return;
     setEditError(null);
 
     const title = editTitleInput.trim();
@@ -187,7 +257,7 @@ export default function AdminLinksPage() {
 
     setSavingId(id);
     try {
-      const docRef = doc(db, "users", "anonymous", "links", id);
+      const docRef = doc(db, "users", user.uid, "links", id);
       await updateDoc(docRef, {
         linkTitle: title,
         targetUrl: url,
@@ -200,6 +270,49 @@ export default function AdminLinksPage() {
       setSavingId(null);
     }
   };
+
+  // Copy public URL
+  const handleCopyLink = () => {
+    if (!profile) return;
+    const publicUrl = `${window.location.origin}/${profile.username}`;
+    navigator.clipboard.writeText(publicUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  // Full screen loader while auth is fetching
+  if (authLoading || (user && profileLoading)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-100">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+          <p className="text-sm text-zinc-500">프로필 정보를 불러오고 있습니다...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback if user is somehow bypassed (normally layout.tsx guards this)
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-100 p-6 text-center">
+        <div className="space-y-4">
+          <AlertCircle className="w-12 h-12 text-rose-500 mx-auto" />
+          <h2 className="text-xl font-bold">인증이 필요합니다</h2>
+          <p className="text-sm text-zinc-400">관리자 대시보드에 접근하기 위해 로그인해 주세요.</p>
+          <Link
+            href="/login"
+            className="inline-block px-5 py-2.5 rounded-xl bg-zinc-100 text-zinc-950 font-bold hover:bg-white transition-colors"
+          >
+            로그인하러 가기
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const publicPagePath = profile ? `/${profile.username}` : "#";
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -221,8 +334,84 @@ export default function AdminLinksPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Add Link Form */}
+        {/* Left Column: Profile Preview & Add Link Form */}
         <div className="lg:col-span-5 space-y-6">
+          {/* Profile Card */}
+          {profile && (
+            <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-emerald-500/50 to-teal-400/50" />
+              
+              <h2 className="text-xs font-bold text-zinc-400 tracking-wider uppercase mb-4 flex items-center gap-1.5">
+                <span className="w-1 h-3 rounded bg-emerald-500" />
+                나의 프로필 미리보기
+              </h2>
+
+              <div className="flex items-center gap-4 mb-5">
+                {profile.profileImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.profileImageUrl}
+                    alt={profile.displayName}
+                    className="w-14 h-14 rounded-full border-2 border-emerald-500/30 p-0.5 object-cover"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700">
+                    <UserIcon className="w-6 h-6 text-zinc-400" />
+                  </div>
+                )}
+                <div className="text-left overflow-hidden">
+                  <h3 className="font-extrabold text-zinc-100 text-base leading-tight truncate">
+                    {profile.displayName}
+                  </h3>
+                  <p className="text-xs text-emerald-400 font-medium leading-none mt-1">
+                    @{profile.username}
+                  </p>
+                  <p className="text-[11px] text-zinc-400 leading-snug mt-1.5 line-clamp-1">
+                    {profile.bioText}
+                  </p>
+                </div>
+              </div>
+
+              {/* Public Link Box */}
+              <div className="bg-zinc-950/65 border border-zinc-800/85 rounded-xl p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between text-xs text-zinc-500">
+                  <span>공개 링크 주소</span>
+                  <span className="text-[10px] text-emerald-400/80 bg-emerald-400/5 px-2 py-0.5 rounded border border-emerald-500/10 font-semibold">
+                    Live
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2 overflow-hidden bg-zinc-900/60 p-2 rounded-lg border border-zinc-800">
+                  <span className="text-xs text-zinc-300 font-mono truncate select-all">
+                    mylink.com/{profile.username}
+                  </span>
+                  <button
+                    onClick={handleCopyLink}
+                    className={`p-1.5 rounded-md border text-xs font-semibold flex items-center gap-1 transition-all ${
+                      copied
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : "bg-zinc-800 text-zinc-400 border-zinc-700 hover:text-zinc-200 hover:bg-zinc-700"
+                    }`}
+                    title="링크 복사"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+
+                <div className="pt-1.5 flex gap-2">
+                  <Link
+                    href={publicPagePath}
+                    target="_blank"
+                    className="flex-1 h-9 rounded-lg bg-zinc-800 text-zinc-300 text-xs font-bold hover:bg-zinc-700 hover:text-white transition-all flex items-center justify-center gap-1.5 border border-zinc-700/50"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>공개 페이지 방문</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Add Link Form */}
           <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
             {/* Background glowing line */}
             <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-emerald-500 to-teal-400" />
@@ -424,7 +613,7 @@ export default function AdminLinksPage() {
                             <Link2 className="w-4 h-4 text-emerald-400/80 group-hover:text-emerald-400 transition-colors" />
                           </div>
 
-                          <div className="overflow-hidden space-y-1 text-left">
+                          <div className="overflow-hidden space-y-1.5 text-left">
                             <h4 className="font-bold text-sm text-zinc-200 group-hover:text-white transition-colors truncate">
                               {link.linkTitle}
                             </h4>
@@ -432,11 +621,17 @@ export default function AdminLinksPage() {
                               {link.targetUrl}
                               <ChevronRight className="w-3 h-3 text-zinc-600" />
                             </p>
+                            
+                            {/* Click stats badge */}
+                            <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-zinc-850 text-[10px] text-zinc-400 border border-zinc-800 font-medium">
+                              <span>클릭 수:</span>
+                              <span className="text-emerald-400 font-bold">{link.clickCount || 0}</span>
+                            </div>
                           </div>
                         </div>
 
                         {/* Right Buttons Actions */}
-                        <div className="flex items-center gap-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-1 shrink-0 opacity-85 group-hover:opacity-100 transition-opacity">
                           {/* Visit Link */}
                           <a
                             href={link.targetUrl}
