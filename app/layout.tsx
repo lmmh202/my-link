@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://my-link.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://my-link-sable.vercel.app"),
   title: {
     default: "My Link | Consolidate Your Digital Presence",
     template: "%s | My Link",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    url: "https://my-link.vercel.app",
+    url: "https://my-link-sable.vercel.app",
     title: "My Link | Consolidate Your Digital Presence",
     description: "Share all your dynamic social media presence, website URLs, and channels in one elegant, fast, and customizable glassmorphic landing page.",
     siteName: "My Link",

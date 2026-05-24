@@ -9,7 +9,7 @@ interface UserProfile {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://my-link.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://my-link-sable.vercel.app";
 
   // Static site entry links
   const sitemapEntries: MetadataRoute.Sitemap = [
