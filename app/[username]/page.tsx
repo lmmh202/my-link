@@ -63,7 +63,7 @@ export default async function Page({ params }: PageProps) {
         "identifier": profile.username,
         "description": profile.bioText || undefined,
         "image": profile.profileImageUrl || undefined,
-        "url": `https://my-link-sable.vercel.app/${profile.username}`,
+        "url": `${process.env.NEXT_PUBLIC_APP_URL || "https://my-link-sable.vercel.app"}/${profile.username}`,
       },
     };
   }

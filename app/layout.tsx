@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    url: "https://my-link-sable.vercel.app",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://my-link-sable.vercel.app",
     title: "My Link | Consolidate Your Digital Presence",
     description: "Share all your dynamic social media presence, website URLs, and channels in one elegant, fast, and customizable glassmorphic landing page.",
     siteName: "My Link",
