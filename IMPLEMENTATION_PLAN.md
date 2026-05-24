@@ -8,6 +8,7 @@ This document details the phase-by-phase architectural execution plan for the My
 | :--- | :--- | :--- | :--- |
 | v1.0.0 | 2026-05-24 | AI Assistant | Initial draft outlining the 6-phase plan in Korean. |
 | v2.0.0 | 2026-05-24 | AI Assistant | Updated to English. Adjusted Phase 3 to specify inline profile/nickname custom edits, excluded manual profile image uploads, removed Firebase Storage, and recorded actual implementation statuses. |
+| v2.1.0 | 2026-05-24 | AI Assistant | Updated Phase 5 to 'In Progress' and added a new action for implementing an admin statistics subpage UI (/admin/stats). |
 
 ---
 
@@ -94,13 +95,14 @@ interface LinkItem {
   - Implement dynamic link creation forms, delete triggers, and inline card update inputs.
 
 ### Phase 5: Dynamic Public Profile & Click Tracking
-- **Objective**: Open Dynamic Route pages rendering creator cards and tracking performance.
-- **Status**: **Completed**
+- **Objective**: Open Dynamic Route pages rendering creator cards and tracking performance, with visitor click metrics displayed in an admin analytics dashboard.
+- **Status**: **In Progress**
 - **Branch**: `feature/public-page-and-stats`
 - **Actions**:
   - Build dynamic route `/[username]` resolving database queries against `username` field.
   - Implement static centering container grids optimized for mobile device screen layouts.
   - Build visitor interaction triggers firing non-blocking `increment(1)` click updates in Firestore upon card selections.
+  - Implement a dedicated admin statistics subpage (`/admin/stats` or `/admin/analytics`) displaying aggregate click stats, total views, and link performance charts.
 
 ### Phase 6: SEO Configuration & Deployment Pipeline
 - **Objective**: Apply metadata settings and connect GitHub repos to Vercel build systems.
