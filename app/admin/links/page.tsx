@@ -77,6 +77,14 @@ export default function AdminLinksPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const [origin, setOrigin] = useState("mylink.com");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.host);
+    }
+  }, []);
+
   // Initialize and listen to User Profile
   useEffect(() => {
     if (!user) return;
@@ -380,7 +388,7 @@ export default function AdminLinksPage() {
                 </div>
                 <div className="flex items-center justify-between gap-2 overflow-hidden bg-zinc-900/60 p-2 rounded-lg border border-zinc-800">
                   <span className="text-xs text-zinc-300 font-mono truncate select-all">
-                    mylink.com/{profile.username}
+                    {origin}/{profile.username}
                   </span>
                   <Button
                     onClick={handleCopyLink}
