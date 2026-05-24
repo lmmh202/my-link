@@ -1,5 +1,11 @@
 # My Link: User Scenarios
 
+## Document Version Control
+
+| Version | Date | Author | Description |
+| :--- | :--- | :--- | :--- |
+| v1.0.0 | 2026-05-24 | AI Assistant | Initial draft outlining Visitor, Owner, and system-level scenarios. |
+
 This document outlines the primary interaction flows for **Visitors** and **Owners** of the My Link platform, following the structure: *"In order to [goal], the user [does action]."*
 
 ---
