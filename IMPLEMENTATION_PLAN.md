@@ -9,6 +9,8 @@ This document details the phase-by-phase architectural execution plan for the My
 | v1.0.0 | 2026-05-24 | AI Assistant | Initial draft outlining the 6-phase plan in Korean. |
 | v2.0.0 | 2026-05-24 | AI Assistant | Updated to English. Adjusted Phase 3 to specify inline profile/nickname custom edits, excluded manual profile image uploads, removed Firebase Storage, and recorded actual implementation statuses. |
 | v2.1.0 | 2026-05-24 | AI Assistant | Updated Phase 5 to 'In Progress' and added a new action for implementing an admin statistics subpage UI (/admin/stats). |
+| v2.2.0 | 2026-05-24 | AI Assistant | Added Phase 7 for Dynamic OG Image Generation based on user profile metadata. |
+
 
 ---
 
@@ -109,6 +111,16 @@ interface LinkItem {
 - **Status**: **Completed**
 - **Branch**: `feature/seo-and-deploy`
 - **Actions**:
-  - Write generic dynamically resolved Open Graph tags for platform previews (e.g., KakaoTalk, Instagram).
   - Add structural SEO fields inside metadata indexes.
   - Deploy final configurations to Vercel production hosting.
+
+### Phase 7: Dynamic OG Image Generation
+- **Objective**: Implement a dynamic, user-specific Open Graph (OG) image generation system (`app/[username]/opengraph-image.tsx`) to render highly personalized preview cards when profiles are shared.
+- **Status**: **Planned**
+- **Branch**: `feature/dynamic-og-image`
+- **Actions**:
+  - **Next.js Dynamic Image API**: Utilize `ImageResponse` from `next/og` (with `nodejs` runtime for compatibility with Firebase SDK calls) inside `app/[username]/opengraph-image.tsx` or similar dynamic metadata file.
+  - **Dynamic Firestore Fetching**: Programmatically resolve the username parameter, query the `/users` collection in Firestore to fetch `displayName`, `bioText`, and `profileImageUrl`, and use this data to populate the template.
+  - **Premium Aesthetic Template**: Design a gorgeous, premium-looking, dark-themed image layout (e.g., custom gradients, neon styling, custom branding badges, avatar circle, and metadata text) using Tailwind CSS inside the JSX/TSX template.
+  - **Edge/Node Compatibility & Error Fallbacks**: Implement proper fallback rendering (e.g., fallback default OG image, user initials) if the profile cannot be found or the external profile image fails to load.
+
