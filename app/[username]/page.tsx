@@ -48,5 +48,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function Page({ params }: PageProps) {
-  return <ProfileClient params={params} />;
+  const { username } = await params;
+  const profile = await fetchProfile(username);
+
+  let jsonLd = null;
+  if (profile) {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      "mainEntity": {
+        "@type": "Person",
+        "name": profile.displayName,
+        "alternateName": profile.username,
+        "identifier": profile.username,
+        "description": profile.bioText || undefined,
+        "image": profile.profileImageUrl || undefined,
+        "url": `${process.env.NEXT_PUBLIC_APP_URL || "https://my-link-sable.vercel.app"}/${profile.username}`,
+      },
+    };
+  }
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <ProfileClient params={params} />
+    </>
+  );
 }
