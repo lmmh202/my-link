@@ -151,7 +151,6 @@ export default async function OGImage({ params }: OGImageProps) {
             }}
           >
             {base64Avatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={base64Avatar}
                 alt="Avatar"

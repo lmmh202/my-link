@@ -16,7 +16,6 @@ import {
 } from "firebase/firestore";
 import {
   Link2,
-  ExternalLink,
   ChevronRight,
   User as UserIcon,
   AlertCircle,
