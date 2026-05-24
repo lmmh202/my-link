@@ -194,38 +194,38 @@ flowchart TD
     Owner[Owner / Creator]
 
     %% Paths
-    Visitor --> PathPublic[Dynamic Route: /[username]]
-    Owner --> PathHome[Landing Page: /]
+    Visitor --> PathPublic["Dynamic Route: /[username]"]
+    Owner --> PathHome["Landing Page: /"]
 
     %% Visitor Flow
     subgraph Public Profile Flow
         PathPublic --> FetchProfile{Query Firestore users}
         FetchProfile -- Found --> RenderPublic[Display Profile & Links]
         FetchProfile -- Not Found --> Render404[Display 404 Page]
-        Render404 --> ReturnHome[Click 'Make my own Link'] --> PathHome
+        Render404 --> ReturnHome["Click 'Make my own Link'"] --> PathHome
         
         RenderPublic --> ClickLink[Click Link Card]
-        ClickLink --> IncrementCount[Increment clickCount +1 in Firestore]
+        ClickLink --> IncrementCount["Increment clickCount +1 in Firestore"]
         IncrementCount --> ExternalRedirect[Redirect to Target URL]
     end
 
     %% Owner Flow
     subgraph Registration & Authentication Flow
-        PathHome --> ClickStart[Click 'Get Started' or 'Dashboard']
-        ClickStart --> PathLogin[Login Page: /login]
+        PathHome --> ClickStart["Click 'Get Started' or 'Dashboard'"]
+        ClickStart --> PathLogin["Login Page: /login"]
         PathLogin --> GoogleLogin[Google Social Sign-In]
         GoogleLogin --> AuthCheck{Auth Successful?}
-        AuthCheck -- Yes --> ProfileCheck{Profile exists in /users/{uid}?}
+        AuthCheck -- Yes --> ProfileCheck{"Profile exists in /users/{uid}?"}
         AuthCheck -- No --> PathLogin
         
-        ProfileCheck -- No --> ProvisionProfile[Auto-provision profile from Google metadata] --> PathAdmin[Admin Dashboard: /admin/links]
+        ProfileCheck -- No --> ProvisionProfile["Auto-provision profile from Google metadata"] --> PathAdmin[Admin Dashboard: /admin/links]
         ProfileCheck -- Yes --> PathAdmin
     end
 
     subgraph Admin Dashboard Operations
         PathAdmin --> AddLink[Add Link Form]
         AddLink --> ValidateURL{URL Valid?}
-        ValidateURL -- Yes --> CreateLink[Save link under users/{uid}/links]
+        ValidateURL -- Yes --> CreateLink["Save link under users/{uid}/links"]
         ValidateURL -- No --> ShowFormError[Display Form Error]
 
         PathAdmin --> ReadLinks[Listen to links in real-time]
