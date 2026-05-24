@@ -1,5 +1,12 @@
 # Product Requirement Document (PRD): My Link
 
+## Document Version Control
+
+| Version | Date | Author | Description |
+| :--- | :--- | :--- | :--- |
+| v1.0.0 | 2026-05-24 | AI Assistant | Initial PRD draft defining core Linktree clone features. |
+| v1.1.0 | 2026-05-24 | AI Assistant | Updated Profile Customization: added inline editing requirements for profile/nickname, excluded profile image upload, and removed Firebase Storage from stack. |
+
 ## 1. Project Overview
 
 ### 1.1 Project Name
@@ -30,7 +37,7 @@ Features are categorized by their implementation priority: **Essential (Must-Hav
 | **F-04** | Target URL Validation & Formatting | Validates input URLs and prepends `https://` if missing. | **Implemented** |
 | **F-05** | Public Profile Page | A public route (`/[username]`) showing the user's links, bio, and avatar. | **Implemented** |
 | **F-06** | Real-Time Click Count Tracking | Increments a link click counter on public click events and displays live statistics in the admin dashboard. | **Implemented** |
-| **F-07** | Custom Profile Settings | Allows users to manually edit display name, biography text, profile image, and custom username. | **In Progress** (Placeholder UI) |
+| **F-07** | Custom Profile Settings | Allows users to manually edit display name, biography text, and custom username (nickname) via inline editing. Profile image updates are excluded. | **In Progress** (Placeholder UI) |
 | **F-08** | Dark Mode Responsive UI | Mobile-first dashboard and public pages using Tailwind CSS and shadcn/ui. | **Implemented** |
 
 ### 2.2 Optional (Future Enhancements)
@@ -82,9 +89,9 @@ Features are categorized by their implementation priority: **Essential (Must-Hav
 ### 3.4 Profile Customization (F-07)
 - **Current Status**: Accessible via `/admin/profile`. Standard mockup card active.
 - **Requirements**:
-  - Text inputs for Display Name and Bio.
-  - Image file uploader connecting to Firebase Storage. Updates `profileImageUrl` after upload completes.
-  - Username uniqueness check before allowing modification to prevent duplicate URL routes.
+  - **Inline Editing**: Modifying display name, bio text, and custom username (nickname) must be performed directly in-place on the dashboard using inline inputs with real-time Save and Cancel actions.
+  - **Username Uniqueness Validation**: Validation check before saving username modifications to prevent duplicate dynamic URL routes.
+  - **Profile Image Excluded**: Manual profile image modifications or uploads are explicitly out of scope. The profile will continue to utilize the initial avatar URL retrieved during Google authentication provisioning.
 
 ---
 
@@ -96,7 +103,6 @@ Features are categorized by their implementation priority: **Essential (Must-Hav
 - **UI Base**: shadcn/ui.
 - **Backend & Auth**: Firebase Auth (Google Provider).
 - **Database**: Firebase Firestore.
-- **Storage**: Firebase Storage (for profile images).
 
 ### 4.2 Firestore Data Schema
 
